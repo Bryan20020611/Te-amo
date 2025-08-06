@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Caja Fuerte Romántica</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: #111;
+      font-family: 'Georgia', serif;
+      color: white;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .pantalla-inicio {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: black;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      z-index: 100;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .pantalla-inicio h1 {
+      font-size: 28px;
+      margin-bottom: 20px;
+      color: pink;
+    }
+
+    .pantalla-inicio button {
+      background-color: pink;
+      color: black;
+      border: none;
+      padding: 15px 30px;
+      font-size: 18px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .safe-container {
+      background-color: #2c2c2c;
+      border: 5px solid #555;
+      border-radius: 20px;
+      padding: 30px;
+      text-align: center;
+      width: 320px;
+      box-shadow: 0 0 25px rgba(0,0,0,0.6);
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 2;
+    }
+
+    .lock-icon {
+      font-size: 60px;
+      margin-bottom: 20px;
+      transition: transform 0.5s ease, color 0.5s ease;
+    }
+
+    .lock-open {
+      transform: rotate(-30deg) scale(1.2);
+      color: #4dfc58;
+    }
+
+    .input-display {
+      background-color: #000;
+      border: 2px solid #555;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 24px;
+      letter-spacing: 10px;
+      margin-bottom: 20px;
+      color: #0f0;
+    }
+
+    .keyboard {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .keyboard button {
+      padding: 20px;
+      font-size: 20px;
+      border: none;
+      border-radius: 10px;
+      background-color: #444;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .keyboard button:hover {
+      background-color: #666;
+    }
+
+    .keyboard .action {
+      background-color: #0f62fe;
+    }
+
+    .keyboard .delete {
+      background-color: #e53935;
+    }
+
+    .error {
+      color: red;
+      margin-top: 10px;
+    }
+
+    .scroll-area {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      overflow-y: auto;
+      background: #222 url('https://www.transparenttextures.com/patterns/paper-fibers.png');
+      padding: 50px 20px;
+      display: none;
+      z-index: 10;
+      text-align: center;
+    }
+
+    .scroll-area.show {
+      display: block;
+    }
+
+    .scroll-area .carta {
+      max-width: 600px;
+      margin: auto;
+      background: #fdf5e6;
+      color: #5b3a29;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px #000;
+      font-family: 'Georgia', serif;
+      font-size: 18px;
+      line-height: 1.6;
+      position: relative;
+    }
+
+    .big-heart {
+      width: 100px;
+      height: 90px;
+      background-color: pink;
+      clip-path: polygon(50% 90%, 0% 40%, 10% 0%, 50% 35%, 90% 0%, 100% 40%);
+      margin: 40px auto 0;
+      animation: heartbeat 1.5s infinite;
+    }
+
+    @keyframes heartbeat {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+    }
+
+    #botonSonido {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 200;
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      border-radius: 50%;
+      padding: 12px;
+      font-size: 24px;
+      color: white;
+      cursor: pointer;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Pantalla de inicio -->
+<div class="pantalla-inicio" id="pantallaInicio">
+  <h1>Esto es para ti mi amor 💖<br>Con todo su amor,<br><strong>Bryan tu loquito</strong></h1>
+  <button onclick="iniciarExperiencia()">Ver Sorpresa</button>
+  <br><br>
+  <button onclick="audioMelendi.play()">🔊 Reproducir Canción Manualmente</button>
+</div>
+
+<!-- Botón de sonido -->
+<button id="botonSonido" onclick="toggleSonido()">🔊</button>
+
+<!-- Caja fuerte -->
+<div class="safe-container" id="safeContainer">
+  <div id="lockIcon" class="lock-icon">🔒</div>
+  <h2>Introduce el código</h2>
+  <div class="input-display" id="display">____</div>
+  <div class="keyboard">
+    <button onclick="agregarNumero('1')">1</button>
+    <button onclick="agregarNumero('2')">2</button>
+    <button onclick="agregarNumero('3')">3</button>
+    <button onclick="agregarNumero('4')">4</button>
+    <button onclick="agregarNumero('5')">5</button>
+    <button onclick="agregarNumero('6')">6</button>
+    <button onclick="agregarNumero('7')">7</button>
+    <button onclick="agregarNumero('8')">8</button>
+    <button onclick="agregarNumero('9')">9</button>
+    <button class="delete" onclick="borrar()">←</button>
+    <button onclick="agregarNumero('0')">0</button>
+    <button class="action" onclick="verificarCodigo()">OK</button>
+  </div>
+  <div id="errorMensaje" class="error"></div>
+</div>
+
+<!-- Carta -->
+<div class="scroll-area" id="cartaArea">
+  <div class="carta">
+    <p>El poder tratarte como una princesa es un privilegio inmenso para mí, y ser tu novio es un sueño hecho realidad.</p>
+    <p>Eres ese deseo que siempre le pedí a Dios, y cuando menos lo esperaba... llegaste tú, mi amor, y me cambiaste la vida.</p>
+    <p>Desde que estás a mi lado me haces inmensamente feliz. No tienes idea de lo afortunado y completo que me siento contigo.</p>
+    <p>Gracias por amarme tal como soy, con mis defectos y mis virtudes. Sé que no soy perfecto, pero te prometo que haré todo lo posible por hacerte la niña más feliz del mundo.</p>
+    <p>Te amo hoy, mañana y siempre. Nunca olvides cuánto te amo, mi princesa hermosa.</p>
+    <div class="big-heart"></div>
+  </div>
+</div>
+
+<audio id="audioApertura" src="door-open.mp3"></audio>
+<audio id="audioMelendi" src="amarte-a-la-antigua.mp3" loop preload="auto"></audio>
+
+<script>
+  let entrada = "";
+  const contraseñaCorrecta = "0611";
+  const display = document.getElementById("display");
+  const error = document.getElementById("errorMensaje");
+  const lockIcon = document.getElementById("lockIcon");
+  const safeContainer = document.getElementById("safeContainer");
+  const cartaArea = document.getElementById("cartaArea");
+  const audioApertura = document.getElementById("audioApertura");
+  const audioMelendi = document.getElementById("audioMelendi");
+  const pantallaInicio = document.getElementById("pantallaInicio");
+  const botonSonido = document.getElementById("botonSonido");
+
+  function actualizarDisplay() {
+    display.textContent = entrada.padEnd(4, "_");
+  }
+
+  function agregarNumero(num) {
+    if (entrada.length < 4) {
+      entrada += num;
+      actualizarDisplay();
+    }
+  }
+
+  function borrar() {
+    entrada = entrada.slice(0, -1);
+    actualizarDisplay();
+  }
+
+  function verificarCodigo() {
+    if (entrada === contraseñaCorrecta) {
+      safeContainer.style.display = "none";
+      lockIcon.classList.add("lock-open");
+      error.textContent = "";
+
+      audioApertura.currentTime = 0;
+      audioApertura.play().catch(() => {});
+      mostrarCarta();
+    } else {
+      error.textContent = "Código incorrecto.";
+      lockIcon.classList.remove("lock-open");
+    }
+    entrada = "";
+    actualizarDisplay();
+  }
+
+  function mostrarCarta() {
+    cartaArea.classList.add("show");
+  }
+
+  function iniciarExperiencia() {
+    pantallaInicio.style.display = "none";
+    safeContainer.style.display = "block";
+
+    audioMelendi.load();
+    audioMelendi.currentTime = 0;
+    audioMelendi.volume = 1.0;
+    audioMelendi.muted = false;
+
+    audioMelendi.play().then(() => {
+      console.log("🎵 Canción iniciada");
+    }).catch((error) => {
+      console.error("⚠️ Error de audio:", error);
+      alert("El navegador bloqueó la música. Toca el botón otra vez o revisa los permisos.");
+    });
+
+    botonSonido.style.display = "block";
+  }
+
+  function toggleSonido() {
+    audioMelendi.muted = !audioMelendi.muted;
+    botonSonido.textContent = audioMelendi.muted ? "🔇" : "🔊";
+  }
+
+  safeContainer.style.display = "none";
+  actualizarDisplay();
+</script>
+</body>
+</html>
